@@ -1,7 +1,19 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import Link from "next/link";
-export default function Home() {
+import Collection from "@/components/shared/Collection"
+import { Button } from "@/components/ui/button"
+import { getAllEvents } from "@/lib/actions/event.actions"
+import Image from "next/image"
+import Link from "next/link"
+export default async function Home() {
+
+  const events = await getAllEvents({
+    query: '',
+    category: '',
+    page: 1,
+    limit: 6
+  })
+
+  console.log(events)
+
   return (
     <>
       <section className="bg-primary-50 bg-dotted-pattern bg-contain py-5 md:py-10">
@@ -35,9 +47,19 @@ export default function Home() {
           Trusted by <br /> thousands of events
         </h2>
         <div className="flex w-full flex-col gap-5 md:flex-row">
-          Search CategoryFilter
+          Search Category Filter
         </div>
+
+        <Collection
+          data={events?.data}
+          emptyTitle="No Events Found"
+          emptyStateSubtext="Come back later"
+          collectionType="All_Events"
+          limit={6}
+          page={1}
+          totalPages={2}
+        />
       </section>
     </>
-  );
+  )
 }

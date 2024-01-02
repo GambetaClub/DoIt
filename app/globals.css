@@ -226,7 +226,7 @@ body {
   }
 
   .toggle-switch {
-    @apply bg-gray-300 !important;
+    @apply bg-grey-300 !important;
   }
 }
 
