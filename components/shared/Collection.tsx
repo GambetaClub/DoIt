@@ -1,6 +1,7 @@
 import { IEvent } from '@/lib/database/models/event.model'
 import React from 'react'
 import Card from './Card'
+import Paging from '@/components/shared/Paging'
 
 
 type CollectionProps = {
@@ -33,6 +34,10 @@ const Collection = ({data, emptyTitle, emptyStateSubtext, page, totalPages = 0, 
                 )
                 })}
             </ul>
+
+            {totalPages > 1 && (
+              <Paging urlParamName={urlParamName} page={page} totalPages={totalPages}/>
+            )}
           </div>
       )
       : 

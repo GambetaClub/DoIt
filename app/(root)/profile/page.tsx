@@ -6,15 +6,14 @@ import { IOrder } from "@/lib/database/models/order.model"
 import { auth } from "@clerk/nextjs"
 import Link from "next/link"
 import React from "react"
-import { SearchParamProps } from '../../../types/index';
+import { SearchParamProps } from "../../../types/index"
 
-const ProfilePage = async ({searchParams}: SearchParamProps) => {
+const ProfilePage = async ({ searchParams }: SearchParamProps) => {
   const { sessionClaims } = auth()
   const userId = sessionClaims?.userId as string
 
   const ordersPage = Number(searchParams?.ordersPage) || 1
   const eventsPage = Number(searchParams?.eventsPage) || 1
-
 
   const orders = await getOrdersByUser({ userId, page: ordersPage })
   const orderedEvents = orders?.data.map((order: IOrder) => order.event || [])
