@@ -17,20 +17,21 @@ const CategoryFilter = () => {
   const [categories, setCategories] = useState<ICategory[]>([])
   const searchParams = useSearchParams()
   const router = useRouter()
+  const [initialCategory, setInitialCategory] = useState('All')
 
   useEffect(() => {
     const getCategories = async () => {
       const categoryList = await getAllCategories()
-
+      
       categoryList && setCategories(categoryList as ICategory[])
     }
-
     getCategories()
   }, [])
-
+  
   const onSelectCategory = (category: string) => {
     let newUrl = ""
-    if (category && category !== 'All') {
+    
+    if (category && category !== "All") {
       newUrl = formUrlQuery({
         params: searchParams.toString(),
         key: "category",
@@ -42,12 +43,17 @@ const CategoryFilter = () => {
         keysToRemove: ["category"],
       })
     }
-
+    
     router.push(newUrl, { scroll: false })
   }
 
+  const getDefaultCategory = () => {
+    // Get the category value from searchParams or use "All" as default
+    return searchParams.get("category") || "All";
+  };
+
   return (
-    <Select onValueChange={(value: string) => onSelectCategory(value)}>
+    <Select onValueChange={(value: string) => onSelectCategory(value)} defaultValue={getDefaultCategory()}>
       <SelectTrigger className="select-field">
         <SelectValue placeholder="Category" />
       </SelectTrigger>

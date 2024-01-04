@@ -26,6 +26,7 @@ import { useUploadThing } from "@/lib/uploadthing"
 import { useRouter } from "next/navigation"
 import { createEvent, updateEvent } from "@/lib/actions/event.actions"
 import { IEvent } from "@/lib/database/models/event.model"
+import Category from "@/lib/database/models/category.model"
 
 type EventFormProps = {
   userId: string
@@ -35,27 +36,30 @@ type EventFormProps = {
 }
 
 const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
+  const router = useRouter()
+  
   const [files, setFiles] = useState<File[]>([])
-  const [startDate, setStartDate] = useState(new Date())
+  const { startUpload } = useUploadThing("imageUploader")
+
   const initialValues =
     event && type === "Update"
       ? {
           ...event,
           startDateTime: new Date(event.startDateTime),
           endDateTime: new Date(event.endDateTime),
+          categoryId: event.category._id,
         }
       : eventDefaultValues
-  const { startUpload } = useUploadThing("imageUploader")
-  const router = useRouter()
 
   const form = useForm<z.infer<typeof eventFormSchema>>({
     resolver: zodResolver(eventFormSchema),
     defaultValues: initialValues,
   })
 
+  console.log(initialValues)
+
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof eventFormSchema>) {
-    const eventData = values
     let uploadedImageUrl = values.imageUrl
     if (files.length > 0) {
       const uploadedImages = await startUpload(files)
@@ -80,7 +84,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
       }
     }
     if (type === "Update") {
-      if(!eventId) {
+      if (!eventId) {
         router.back()
         return
       }
