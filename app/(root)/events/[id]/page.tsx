@@ -1,10 +1,11 @@
 import CheckoutButton from "@/components/shared/CheckoutButton"
 import Collection from "@/components/shared/Collection"
+import CollectionSkeleton from "@/components/shared/CollectionSkeleton"
 import { getEventById, getRelatedEventsByCategory } from "@/lib/actions/event.actions"
 import { formatDateTime } from "@/lib/utils"
 import { SearchParamProps } from "@/types"
 import Image from "next/image"
-import React from "react"
+import React, { Suspense } from "react"
 
 const EventDetails = async ({ params: { id }, searchParams}: SearchParamProps) => {
   const event = await getEventById(id)
@@ -92,15 +93,17 @@ const EventDetails = async ({ params: { id }, searchParams}: SearchParamProps) =
       {/* Events with the same category */}
       <section className="wrapper my-8 flex flex-col gap-8 md:gap-8">
         <h2 className="h2-bold">Related Events</h2>
-        <Collection
-          fetchEvents={getEvents}
-          emptyTitle="No Events Found"
-          emptyStateSubtext="Come back later"
-          collectionType="All_Events"
-          urlParamName="All_Events"
-          limit={3}
-          page={searchParams.page as string}
-        />
+        <Suspense fallback={<CollectionSkeleton/>}>
+          <Collection
+            fetchEvents={getEvents}
+            emptyTitle="No Events Found"
+            emptyStateSubtext="Come back later"
+            collectionType="All_Events"
+            urlParamName="All_Events"
+            limit={3}
+            page={searchParams.page as string}
+          />
+        </Suspense>
       </section>
     </>
   )

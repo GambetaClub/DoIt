@@ -5,8 +5,9 @@ import { getOrdersByUser } from "@/lib/actions/order.actions"
 import { IOrder } from "@/lib/database/models/order.model"
 import { auth } from "@clerk/nextjs"
 import Link from "next/link"
-import React from "react"
+import React, { Suspense } from "react"
 import { SearchParamProps } from "../../../types/index"
+import CollectionSkeleton from "@/components/shared/CollectionSkeleton"
 
 const ProfilePage = async ({ searchParams }: SearchParamProps) => {
   const { sessionClaims } = auth()
@@ -38,6 +39,7 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
         </div>
       </section>
       <section className="wrapper my-8">
+      <Suspense fallback={<CollectionSkeleton/>}>
         <Collection
           fetchEvents={getOrderedEvents}
           emptyTitle="No events tickets purchased yet."
@@ -47,6 +49,7 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
           limit={3}
           page={ordersPage}
         />
+      </Suspense>
       </section>
 
       {/* Events Organized by the User */}
@@ -60,6 +63,7 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
       </section>
 
       <section className="wrapper my-8">
+      <Suspense fallback={<CollectionSkeleton/>}>
         <Collection
           fetchEvents={getOrganizedEvents}
           emptyTitle="No events have been created by you yet."
@@ -69,6 +73,7 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
           limit={3}
           page={eventsPage}
         />
+        </Suspense>
       </section>
     </>
   )

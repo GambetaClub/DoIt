@@ -3,7 +3,6 @@ import React from 'react'
 import Card from './Card'
 import Paging from '@/components/shared/Paging'
 
-
 type CollectionProps = {
     fetchEvents: (page: number, limit: number) => Promise<{ data: IEvent[], totalPages: number }>
     emptyTitle: string,
