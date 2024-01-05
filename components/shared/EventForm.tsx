@@ -56,7 +56,6 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
     defaultValues: initialValues,
   })
 
-  console.log(initialValues)
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof eventFormSchema>) {
@@ -80,7 +79,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
           router.push(`/events/${newEvent._id}`)
         }
       } catch (error) {
-        console.log(error)
+        // console.log(error)
       }
     }
     if (type === "Update") {
@@ -98,7 +97,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
           router.push(`/events/${updatedEvent._id}`)
         }
       } catch (error) {
-        console.log(error)
+        // console.log(error)
       }
     }
   }

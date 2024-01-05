@@ -54,7 +54,7 @@ const Paging = ({ urlParamName, page, totalPages }: PaginationProps) => {
         <PaginationItem>
           <PaginationNext
             href="#"
-            onClick={() => onClick("prev")}
+            onClick={() => onClick("next")}  // Fix here
             className="w-28"
             isActive={Number(page) < Number(totalPages)}
           />
@@ -65,3 +65,4 @@ const Paging = ({ urlParamName, page, totalPages }: PaginationProps) => {
 }
 
 export default Paging
+

@@ -5,19 +5,21 @@ import Paging from '@/components/shared/Paging'
 
 
 type CollectionProps = {
-    data: IEvent[],
+    fetchEvents: (page: number, limit: number) => Promise<{ data: IEvent[], totalPages: number }>
     emptyTitle: string,
     emptyStateSubtext: string,
     limit: number,
     page: number | string,
-    totalPages?: number,
     urlParamName?: string,
     collectionType?: "Events_Organized"| 'My_Tickets'| 'All_Events'
-
 }
 
-const Collection = ({data, emptyTitle, emptyStateSubtext, page, totalPages = 0, collectionType, urlParamName }: CollectionProps) => {
-  
+const Collection = async ({fetchEvents, emptyTitle, emptyStateSubtext, limit, page, collectionType, urlParamName }: CollectionProps) => {
+
+  const events = await fetchEvents(Number(page), limit)
+  const data = events?.data || []
+  const totalPages = events.totalPages
+
   return (
     <>
       {data.length > 0 ? 

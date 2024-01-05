@@ -15,14 +15,20 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
   const ordersPage = Number(searchParams?.ordersPage) || 1
   const eventsPage = Number(searchParams?.eventsPage) || 1
 
-  const orders = await getOrdersByUser({ userId, page: ordersPage })
-  const orderedEvents = orders?.data.map((order: IOrder) => order.event || [])
+  const getOrderedEvents = async (pageNumber: number, limit: number) => {
+    const orders = await getOrdersByUser({ userId, page: pageNumber, limit: limit});
+    const orderedEvents = orders?.data.map((order: IOrder) => order.event || []);
+    return { data: orderedEvents, totalPages: orderedEvents?.length || 0 };
+  };
 
-  const organizedEvents = await getEventsByUser({ userId, page: eventsPage })
+  const getOrganizedEvents = async (pageNumber: number, limit: number) => {
+    const organizedEvents = await getEventsByUser({ userId, page: pageNumber, limit: limit})
+    return { data: organizedEvents?.data, totalPages: organizedEvents?.totalPages || 0};
+  } 
 
   return (
     <>
-      {/* Purchased Events Tickets */}
+      {/* Events Purchased by the User */}
       <section className="bg-primary-50 bg-dotted-pattern bg-cover bg-center py-5 md:py-10">
         <div className="wrapper flex items-center justify-center sm:justify-between">
           <h3 className="h3-bold text-center sm:text-left">My Tickets</h3>
@@ -33,18 +39,17 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
       </section>
       <section className="wrapper my-8">
         <Collection
-          data={orderedEvents}
+          fetchEvents={getOrderedEvents}
           emptyTitle="No events tickets purchased yet."
           emptyStateSubtext="No worries - plenty of exciting events to explore!"
           collectionType="My_Tickets"
+          urlParamName="ordersPage"
           limit={3}
           page={ordersPage}
-          totalPages={orders?.totalPages}
-          urlParamName="ordersPage"
         />
       </section>
 
-      {/* My Events Organized */}
+      {/* Events Organized by the User */}
       <section className="bg-primary-50 bg-dotted-pattern bg-cover bg-center py-5 md:py-10">
         <div className="wrapper flex items-center justify-center sm:justify-between">
           <h3 className="h3-bold text-center sm:text-left">Events organized</h3>
@@ -56,14 +61,13 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
 
       <section className="wrapper my-8">
         <Collection
-          data={organizedEvents?.data}
+          fetchEvents={getOrganizedEvents}
           emptyTitle="No events have been created by you yet."
           emptyStateSubtext="Go create some!"
           collectionType="Events_Organized"
+          urlParamName="eventsPage"
           limit={3}
           page={eventsPage}
-          totalPages={organizedEvents?.totalPages}
-          urlParamName="eventsPage"
         />
       </section>
     </>
