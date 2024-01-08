@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Input } from "../ui/input"
-import { formUrlQuery, removeKeysFromQuery } from "@/lib/utils"
+import { updateUrlQuery } from "@/lib/utils"
 import { useRouter, useSearchParams } from "next/navigation"
 
 const Search = ({placeholder = 'Search Title'}: {placeholder?: string}) => {
@@ -13,13 +13,13 @@ const Search = ({placeholder = 'Search Title'}: {placeholder?: string}) => {
     const delayDebounceFn = setTimeout(() => {
       let newUrl = ""
       if (query) {
-        newUrl = formUrlQuery({
+        newUrl = updateUrlQuery({
           params: searchParams.toString(),
-          key: "query",
-          value: query,
+          addKey: "query",
+          addValue: query,
         })
       } else {
-        newUrl = removeKeysFromQuery({
+        newUrl = updateUrlQuery({
           params: searchParams.toString(),
           keysToRemove: ["query"],
         })

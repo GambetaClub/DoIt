@@ -143,6 +143,14 @@ export type CreateUserParams = {
     keysToRemove: string[]
   }
   
+
+ export type UpdateUrlQueryParams = {
+    params: string; // assuming params is a string representing the URL parameters
+    addKey?: string; // optional: key to add
+    addValue?: string; // optional: value to add
+    keysToRemove?: string[]; // optional: keys to remove
+  };
+
   export type SearchParamProps = {
     params: { id: string }
     searchParams: { [key: string]: string | string[] | undefined }

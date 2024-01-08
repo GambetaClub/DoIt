@@ -41,23 +41,25 @@ type PaginationLinkProps = {
 const PaginationLink = ({
   className,
   isActive,
-  size = "icon",
+  size = 'icon',
   ...props
 }: PaginationLinkProps) => (
   <PaginationItem>
     <a
-      aria-current={isActive ? "page" : undefined}
+      aria-current={isActive ? 'page' : undefined}
       className={cn(
         buttonVariants({
-          variant: isActive ? "outline" : "ghost",
-          size,
+          variant: isActive ? 'outline' : 'ghost',
+          size
         }),
+        isActive ? 'cursor-pointer' : 'cursor-not-allowed bg-muted text-gray-400',
         className
       )}
       {...props}
     />
   </PaginationItem>
 )
+
 PaginationLink.displayName = "PaginationLink"
 
 const PaginationPrevious = ({

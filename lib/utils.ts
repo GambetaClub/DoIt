@@ -3,7 +3,7 @@ import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import qs from 'query-string'
 
-import { UrlQueryParams, RemoveUrlQueryParams } from '@/types'
+import { UrlQueryParams, RemoveUrlQueryParams, UpdateUrlQueryParams } from '@/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -57,26 +57,21 @@ export const formatPrice = (price: string) => {
   return formattedPrice
 }
 
-export function formUrlQuery({ params, key, value }: UrlQueryParams) {
-  const currentUrl = qs.parse(params)
 
-  currentUrl[key] = value
+export function updateUrlQuery({ params, addKey, addValue, keysToRemove }: UpdateUrlQueryParams) {
+  const currentUrl = qs.parse(params);
 
-  return qs.stringifyUrl(
-    {
-      url: window.location.pathname,
-      query: currentUrl,
-    },
-    { skipNull: true }
-  )
-}
+  // Remove specified keys
+  if (keysToRemove) {
+    keysToRemove.forEach(key => {
+      delete currentUrl[key];
+    });
+  }
 
-export function removeKeysFromQuery({ params, keysToRemove }: RemoveUrlQueryParams) {
-  const currentUrl = qs.parse(params)
-
-  keysToRemove.forEach(key => {
-    delete currentUrl[key]
-  })
+  // Add new key and value
+  if (addKey && addValue) {
+    currentUrl[addKey] = addValue;
+  }
 
   return qs.stringifyUrl(
     {
@@ -84,7 +79,7 @@ export function removeKeysFromQuery({ params, keysToRemove }: RemoveUrlQueryPara
       query: currentUrl,
     },
     { skipNull: true }
-  )
+  );
 }
 
 export const handleError = (error: unknown) => {

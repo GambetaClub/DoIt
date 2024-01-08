@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useRouter, useSearchParams } from "next/navigation"
-import { formUrlQuery, removeKeysFromQuery } from "@/lib/utils"
+import { updateUrlQuery } from "@/lib/utils"
 import { getAllCategories } from "@/lib/actions/category.actions"
 import { ICategory } from "@/lib/database/models/category.model"
 
@@ -17,7 +17,6 @@ const CategoryFilter = () => {
   const [categories, setCategories] = useState<ICategory[]>([])
   const searchParams = useSearchParams()
   const router = useRouter()
-  const [initialCategory, setInitialCategory] = useState('All')
 
   useEffect(() => {
     const getCategories = async () => {
@@ -32,13 +31,14 @@ const CategoryFilter = () => {
     let newUrl = ""
     
     if (category && category !== "All") {
-      newUrl = formUrlQuery({
+      newUrl = updateUrlQuery({
         params: searchParams.toString(),
-        key: "category",
-        value: category,
+        addKey: "category",
+        addValue: category,
+        keysToRemove: ['page']
       })
     } else {
-      newUrl = removeKeysFromQuery({
+      newUrl = updateUrlQuery({
         params: searchParams.toString(),
         keysToRemove: ["category"],
       })
