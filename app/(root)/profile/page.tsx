@@ -3,18 +3,20 @@ import { Button } from "@/components/ui/button"
 import { getEventsByUser } from "@/lib/actions/event.actions"
 import { getOrdersByUser } from "@/lib/actions/order.actions"
 import { IOrder } from "@/lib/database/models/order.model"
-import { auth } from "@clerk/nextjs"
+import { auth } from "@clerk/nextjs/server"
+
 import Link from "next/link"
 import React, { Suspense } from "react"
 import { SearchParamProps } from "../../../types/index"
 import CollectionSkeleton from "@/components/shared/CollectionSkeleton"
 
 const ProfilePage = async ({ searchParams }: SearchParamProps) => {
-  const { sessionClaims } = auth()
+  const params = await searchParams
+  const { sessionClaims } = await auth()
   const userId = sessionClaims?.userId as string
 
-  const ordersPage = Number(searchParams?.ordersPage) || 1
-  const eventsPage = Number(searchParams?.eventsPage) || 1
+  const ordersPage = Number(params?.ordersPage) || 1
+  const eventsPage = Number(params?.eventsPage) || 1
 
   const getOrderedEvents = async (pageNumber: number, limit: number) => {
     const orders = await getOrdersByUser({ userId, page: pageNumber, limit: limit});

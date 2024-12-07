@@ -9,9 +9,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { Suspense } from 'react'
 export default async function Home({ searchParams }: SearchParamProps) {
-  const page = Number(searchParams?.page) || 1
-  const searchText = (searchParams?.query as string) || ""
-  const category = (searchParams?.category as string) || ""
+  const params = await searchParams
+  const page = Number(params?.page) || 1
+  const searchText = (params?.query as string) || ""
+  const category = (params?.category as string) || ""
 
   const getEvents = async (pageNumber: number, limit: number) => {
     const events = await getAllEvents({

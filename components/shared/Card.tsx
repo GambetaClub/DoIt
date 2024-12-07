@@ -3,7 +3,8 @@ import { formatDateTime } from "@/lib/utils"
 import Link from "next/link"
 import Image from "next/image"
 import React from "react"
-import { auth } from "@clerk/nextjs"
+import { auth } from "@clerk/nextjs/server"
+
 import { DeleteConfirmation } from "./DeleteConfirmation"
 
 type CardProps = {
@@ -12,8 +13,8 @@ type CardProps = {
   hidePrice: boolean
 }
 
-const Card = ({ event, hasOrderLink, hidePrice }: CardProps) => {
-  const { sessionClaims } = auth()
+const Card = async ({ event, hasOrderLink, hidePrice }: CardProps) => {
+  const { sessionClaims } = await auth()
   const userId = sessionClaims?.userId as string
 
   const isEventCreator = userId === event.organizer._id.toString()

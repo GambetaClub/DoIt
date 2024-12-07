@@ -1,17 +1,16 @@
-import EventForm from "@/components/shared/EventForm";
-import { getEventById } from "@/lib/actions/event.actions";
-import { auth } from "@clerk/nextjs";
+import EventForm from "@/components/shared/EventForm"
+import { getEventById } from "@/lib/actions/event.actions"
+import { auth } from "@clerk/nextjs/server"
 
 type UpdateEventProps = {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
-const UpdateEvent = async ({params: {id}}: UpdateEventProps) => {
-  const { sessionClaims } = auth();
+const UpdateEvent = async ({ params }: UpdateEventProps) => {
+  const { sessionClaims } = await auth()
+  const eventId = (await params).id
   const userId = sessionClaims?.userId as string
-  const event = await getEventById(id)
+  const event = await getEventById(eventId)
 
   return (
     <>
@@ -21,10 +20,15 @@ const UpdateEvent = async ({params: {id}}: UpdateEventProps) => {
         </h3>
       </section>
       <div className="wrapper my-8">
-        <EventForm type="Update" event={event} userId={userId} eventId={event._id}/>
+        <EventForm
+          type="Update"
+          event={event}
+          userId={userId}
+          eventId={event._id}
+        />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default UpdateEvent;
+export default UpdateEvent

@@ -12,10 +12,12 @@ import Link from "next/link"
 import React, { Suspense } from "react"
 
 const EventDetails = async ({
-  params: { id },
+  params,
   searchParams,
 }: SearchParamProps) => {
-  const event = await getEventById(id)
+  const pageParams = await searchParams
+  const eventId = (await params).id
+  const event = await getEventById(eventId)
   const getEvents = async (pageNumber: number) => {
     const relatedEvents = await getRelatedEventsByCategory({
       categoryId: event.category._id,
@@ -118,7 +120,7 @@ const EventDetails = async ({
             collectionType="All_Events"
             urlParamName="All_Events"
             limit={3}
-            page={searchParams.page as string}
+            page={pageParams.page as string}
           />
         </Suspense>
       </section>
