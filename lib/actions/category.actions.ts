@@ -26,6 +26,7 @@ export const getAllCategories = async () => {
     if (categories.length === 0) {
       return []
     }
+    
     return JSON.parse(JSON.stringify(categories))
   } catch (error) {
     handleError(error)

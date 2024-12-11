@@ -26,7 +26,6 @@ import { useUploadThing } from "@/lib/uploadthing"
 import { useRouter } from "next/navigation"
 import { createEvent, updateEvent } from "@/lib/actions/event.actions"
 import { IEvent } from "@/lib/database/models/event.model"
-import Category from "@/lib/database/models/category.model"
 
 type EventFormProps = {
   userId: string
@@ -37,7 +36,7 @@ type EventFormProps = {
 
 const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
   const router = useRouter()
-  
+
   const [files, setFiles] = useState<File[]>([])
   const { startUpload } = useUploadThing("imageUploader")
 
@@ -55,7 +54,6 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
     resolver: zodResolver(eventFormSchema),
     defaultValues: initialValues,
   })
-
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof eventFormSchema>) {
@@ -171,6 +169,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
                   imageUrl={field.value}
                   setFiles={setFiles}
                 />
+                {/* <OurUploadButton/> */}
                 <FormMessage />
               </FormItem>
             )}
