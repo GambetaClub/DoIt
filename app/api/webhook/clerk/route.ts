@@ -1,10 +1,6 @@
 import { Webhook } from "svix"
 import { headers } from "next/headers"
-import {
-  clerkClient,
-  createClerkClient,
-  WebhookEvent,
-} from "@clerk/nextjs/server"
+import { clerkClient, WebhookEvent } from "@clerk/nextjs/server"
 import { createUser, deleteUser, updateUser } from "@/lib/actions/user.actions"
 import { NextResponse } from "next/server"
 
@@ -15,14 +11,6 @@ export async function POST(req: Request) {
   if (!WEBHOOK_SECRET) {
     throw new Error(
       "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
-    )
-  }
-
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-
-  if (!publishableKey) {
-    throw new Error(
-      "Please add the PLASMO_PUBLIC_CLERK_PUBLISHABLE_KEY to the .env.development file"
     )
   }
 
@@ -82,7 +70,7 @@ export async function POST(req: Request) {
     const newUser = await createUser(user)
 
     if (newUser) {
-      const clerk = createClerkClient({ publishableKey })
+      const clerk = await clerkClient()
 
       await clerk.users.updateUserMetadata(id, {
         publicMetadata: {

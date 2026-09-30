@@ -6,7 +6,8 @@ import { connectToDatabase } from '@/lib/database'
 import Event from '@/lib/database/models/event.model'
 import User from '@/lib/database/models/user.model'
 import Category from '@/lib/database/models/category.model'
-import { handleError } from '@/lib/utils'
+import { escapeRegExp, handleError } from '@/lib/utils'
+import { auth } from '@clerk/nextjs/server'
 
 import {
   CreateEventParams,
@@ -18,7 +19,12 @@ import {
 } from '@/types'
 
 const getCategoryByName = async (name: string) => {
-  return Category.findOne({ name: { $regex: name, $options: 'i' } })
+  return Category.findOne({ name: { $regex: escapeRegExp(name), $options: 'i' } })
+}
+
+const assertSessionUser = async (userId: string) => {
+  const { sessionClaims } = await auth()
+  if (!userId || sessionClaims?.userId !== userId) throw new Error('Unauthorized')
 }
 
 const populateEvent = (query: any) => {
@@ -30,6 +36,7 @@ const populateEvent = (query: any) => {
 // CREATE
 export async function createEvent({ userId, event, path }: CreateEventParams) {
   try {
+    await assertSessionUser(userId)
     await connectToDatabase()
 
     const organizer = await User.findById(userId)
@@ -62,6 +69,7 @@ export async function getEventById(eventId: string) {
 // UPDATE
 export async function updateEvent({ userId, event, path }: UpdateEventParams) {
   try {
+    await assertSessionUser(userId)
     await connectToDatabase()
 
     const eventToUpdate = await Event.findById(event._id)
@@ -71,7 +79,7 @@ export async function updateEvent({ userId, event, path }: UpdateEventParams) {
 
     const updatedEvent = await Event.findByIdAndUpdate(
       event._id,
-      { ...event, category: event.categoryId },
+      { ...event, category: event.categoryId, organizer: eventToUpdate.organizer },
       { new: true }
     )
     revalidatePath(path)
@@ -87,8 +95,12 @@ export async function deleteEvent({ eventId, path }: DeleteEventParams) {
   try {
     await connectToDatabase()
 
-    const deletedEvent = await Event.findByIdAndDelete(eventId)
-    if (deletedEvent) revalidatePath(path)
+    const eventToDelete = await Event.findById(eventId)
+    if (!eventToDelete) return
+    await assertSessionUser(eventToDelete.organizer.toHexString())
+
+    await Event.findByIdAndDelete(eventId)
+    revalidatePath(path)
   } catch (error) {
     handleError(error)
   }
@@ -99,7 +111,7 @@ export async function getAllEvents({ query, limit = 6, page, category }: GetAllE
   try {
     await connectToDatabase()
 
-    const titleCondition = query ? { title: { $regex: query, $options: 'i' } } : {}
+    const titleCondition = query ? { title: { $regex: escapeRegExp(query), $options: 'i' } } : {}
     const categoryCondition = category ? await getCategoryByName(category) : null
     const conditions = {
       $and: [titleCondition, categoryCondition ? { category: categoryCondition._id } : {}],

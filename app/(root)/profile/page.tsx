@@ -21,7 +21,7 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
   const getOrderedEvents = async (pageNumber: number, limit: number) => {
     const orders = await getOrdersByUser({ userId, page: pageNumber, limit: limit});
     const orderedEvents = orders?.data.map((order: IOrder) => order.event || []);
-    return { data: orderedEvents, totalPages: orderedEvents?.length || 0 };
+    return { data: orderedEvents, totalPages: orders?.totalPages || 0 };
   };
 
   const getOrganizedEvents = async (pageNumber: number, limit: number) => {
@@ -36,7 +36,7 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
         <div className="wrapper flex items-center justify-center sm:justify-between">
           <h3 className="h3-bold text-center sm:text-left">My Tickets</h3>
           <Button asChild size="lg" className="button hidden sm:flex">
-            <Link href={"/events"}>Explore More Events</Link>
+            <Link href={"/#events"}>Explore More Events</Link>
           </Button>
         </div>
       </section>
