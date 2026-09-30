@@ -1,7 +1,7 @@
 "use server"
 import Stripe from 'stripe'
 import { CheckoutOrderParams, CreateOrderParams, GetOrdersByEventParams, GetOrdersByUserParams } from "../../types/index"
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { escapeRegExp, handleError } from '../utils'
 import { connectToDatabase } from '../database'
 import Order from '../database/models/order.model'
@@ -67,13 +67,14 @@ export const createOrder = async (order: CreateOrderParams) => {
 
 // Get orders by Event
 export async function getOrdersByEvent({ searchString, eventId }: GetOrdersByEventParams) {
-  try {
-    await connectToDatabase()
+  await connectToDatabase()
 
-    if (!eventId) throw new Error('Event ID is required')
-    const event = await Event.findById(eventId)
-    const { sessionClaims } = await auth()
-    if (!event || event.organizer.toHexString() !== sessionClaims?.userId) throw new Error('Unauthorized')
+  if (!eventId) throw new Error('Event ID is required')
+  const event = await Event.findById(eventId)
+  const { sessionClaims } = await auth()
+  if (!event || event.organizer.toHexString() !== sessionClaims?.userId) notFound()
+
+  try {
     const eventObjectId = new ObjectId(eventId)
 
     const orders = await Order.aggregate([
