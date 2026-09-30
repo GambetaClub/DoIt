@@ -72,6 +72,9 @@ export async function getOrdersByEvent({ searchString, eventId }: GetOrdersByEve
     await connectToDatabase()
 
     if (!eventId) throw new Error('Event ID is required')
+    const event = await Event.findById(eventId)
+    const { sessionClaims } = await auth()
+    if (!event || event.organizer.toHexString() !== sessionClaims?.userId) throw new Error('Unauthorized')
     const eventObjectId = new ObjectId(eventId)
 
     const orders = await Order.aggregate([
@@ -130,8 +133,7 @@ export async function getOrdersByUser({ userId, limit = 3, page }: GetOrdersByUs
     const skipAmount = (Number(page) - 1) * limit
     const conditions = { buyer: userId }
 
-    const orders = await Order.distinct('event._id')
-      .find(conditions)
+    const orders = await Order.find(conditions)
       .sort({ createdAt: 'desc' })
       .skip(skipAmount)
       .limit(limit)
@@ -145,7 +147,7 @@ export async function getOrdersByUser({ userId, limit = 3, page }: GetOrdersByUs
         },
       })
 
-    const ordersCount = await Order.distinct('event._id').countDocuments(conditions)
+    const ordersCount = await Order.countDocuments(conditions)
 
     return { data: JSON.parse(JSON.stringify(orders)), totalPages: Math.ceil(ordersCount / limit) }
   } catch (error) {
