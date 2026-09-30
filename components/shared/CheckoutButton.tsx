@@ -10,7 +10,6 @@ import Checkout from "./Checkout"
 const CheckoutButton = ({ event }: { event: IEvent }) => {
   const { user } = useUser()
   const userId = user?.publicMetadata.userId as string
-  // oxlint-disable-next-line react/purity -- no React Compiler here; the clock is meant to be read on every render
   const hasEventFinished = new Date(event.endDateTime) < new Date()
 
   return (
