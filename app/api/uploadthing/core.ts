@@ -1,4 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next"
+import { UploadThingError } from "uploadthing/server"
 import { auth } from "@clerk/nextjs/server"
 
 const f = createUploadthing()
@@ -8,7 +9,7 @@ export const ourFileRouter = {
     .middleware(async ({ req }) => {
       const { userId } = await auth()
 
-      if (!userId) throw new Error("Unauthorized")
+      if (!userId) throw new UploadThingError({ code: "FORBIDDEN", message: "Unauthorized" })
 
       return { userId }
     })

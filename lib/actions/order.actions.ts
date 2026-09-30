@@ -2,7 +2,7 @@
 import Stripe from 'stripe'
 import { CheckoutOrderParams, CreateOrderParams, GetOrdersByEventParams, GetOrdersByUserParams } from "../../types/index"
 import { redirect } from 'next/navigation'
-import { handleError } from '../utils'
+import { escapeRegExp, handleError } from '../utils'
 import { connectToDatabase } from '../database'
 import Order from '../database/models/order.model'
 import Event from '../database/models/event.model'
@@ -54,6 +54,9 @@ export const checkoutOrder = async (order: CheckoutOrderParams) => {
 export const createOrder = async (order: CreateOrderParams) => {
   try {
     await connectToDatabase()
+    const existingOrder = await Order.findOne({ stripeId: order.stripeId })
+    if (existingOrder) return JSON.parse(JSON.stringify(existingOrder))
+
     const newOrder = await Order.create({
       ...order,
       event: order.eventId,
@@ -114,7 +117,7 @@ export async function getOrdersByEvent({ searchString, eventId }: GetOrdersByEve
       },
       {
         $match: {
-          $and: [{ eventId: eventObjectId }, { buyer: { $regex: RegExp(searchString, 'i') } }],
+          $and: [{ eventId: eventObjectId }, { buyer: { $regex: RegExp(escapeRegExp(searchString), 'i') } }],
         },
       },
     ])

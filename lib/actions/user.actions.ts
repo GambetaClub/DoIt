@@ -14,7 +14,7 @@ export async function createUser(user: CreateUserParams) {
   try {
     await connectToDatabase()
 
-    const newUser = await User.create(user)
+    const newUser = (await User.findOne({ clerkId: user.clerkId })) ?? (await User.create(user))
     return JSON.parse(JSON.stringify(newUser))
   } catch (error) {
     handleError(error)
@@ -54,11 +54,9 @@ export async function deleteUser(clerkId: string) {
     // Find user to delete
     const userToDelete = await User.findOne({ clerkId })
 
-    if (!userToDelete) {
-      throw new Error('User not found')
-    }
+    if (!userToDelete) return null
 
-    deleteEventsFromUser(clerkId)
+    await deleteEventsFromUser(clerkId)
 
     const deletedUser = await User.findByIdAndDelete(userToDelete._id)
     revalidatePath('/')
