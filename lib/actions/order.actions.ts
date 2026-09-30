@@ -8,13 +8,21 @@ import Order from '../database/models/order.model'
 import Event from '../database/models/event.model'
 import User from '../database/models/user.model'
 import { ObjectId } from 'mongodb'
+import { auth } from '@clerk/nextjs/server'
 
 
 export const checkoutOrder = async (order: CheckoutOrderParams) => {
   // Create Checkout Sessions from body params.
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-  const price = order.isFree ? 0 : Number(order.price) * 100
   try {
+    const { sessionClaims } = await auth()
+    if (!order.buyerId || sessionClaims?.userId !== order.buyerId) throw new Error('Unauthorized')
+
+    await connectToDatabase()
+    const event = await Event.findById(order.eventId)
+    if (!event) throw new Error('Event not found')
+    const price = event.isFree ? 0 : Math.round(Number(event.price) * 100)
+
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -22,7 +30,7 @@ export const checkoutOrder = async (order: CheckoutOrderParams) => {
             currency: 'usd',
             unit_amount: price,
             product_data: {
-              name: order.eventTitle
+              name: event.title
             }
           },
           quantity: 1
