@@ -21,7 +21,7 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
   const getOrderedEvents = async (pageNumber: number, limit: number) => {
     const orders = await getOrdersByUser({ userId, page: pageNumber, limit: limit});
     const orderedEvents = orders?.data.map((order: IOrder) => order.event || []);
-    return { data: orderedEvents, totalPages: orderedEvents?.length || 0 };
+    return { data: orderedEvents, totalPages: orders?.totalPages || 0 };
   };
 
   const getOrganizedEvents = async (pageNumber: number, limit: number) => {
