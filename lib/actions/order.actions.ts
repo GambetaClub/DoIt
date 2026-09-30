@@ -14,40 +14,36 @@ import { auth } from '@clerk/nextjs/server'
 export const checkoutOrder = async (order: CheckoutOrderParams) => {
   // Create Checkout Sessions from body params.
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-  try {
-    const { sessionClaims } = await auth()
-    if (!order.buyerId || sessionClaims?.userId !== order.buyerId) throw new Error('Unauthorized')
+  const { sessionClaims } = await auth()
+  if (!order.buyerId || sessionClaims?.userId !== order.buyerId) throw new Error('Unauthorized')
 
-    await connectToDatabase()
-    const event = await Event.findById(order.eventId)
-    if (!event) throw new Error('Event not found')
-    const price = event.isFree ? 0 : Math.round(Number(event.price) * 100)
+  await connectToDatabase()
+  const event = await Event.findById(order.eventId)
+  if (!event) throw new Error('Event not found')
+  const price = event.isFree ? 0 : Math.round(Number(event.price) * 100)
 
-    const session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            unit_amount: price,
-            product_data: {
-              name: event.title
-            }
-          },
-          quantity: 1
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          currency: 'usd',
+          unit_amount: price,
+          product_data: {
+            name: event.title
+          }
         },
-      ],
-      metadata: {
-        eventId: order.eventId,
-        buyerId: order.buyerId,
+        quantity: 1
       },
-      mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/profile`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/`,
-    })
-    redirect(session.url!)
-  } catch (error) {
-    throw error
-  }
+    ],
+    metadata: {
+      eventId: order.eventId,
+      buyerId: order.buyerId,
+    },
+    mode: "payment",
+    success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/profile`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/`,
+  })
+  redirect(session.url!)
 }
 
 
